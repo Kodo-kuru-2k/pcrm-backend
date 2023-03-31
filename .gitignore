@@ -20,6 +20,7 @@ docs/_build/
 *.txt
 *.db
 *.http
+*.pdf
 # Coverage reports
 htmlcov/
 .coverage

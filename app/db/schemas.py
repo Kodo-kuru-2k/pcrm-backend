@@ -1,4 +1,5 @@
 import enum
+from typing import Optional
 
 from pydantic import BaseModel
 
@@ -30,7 +31,7 @@ class COE(BaseModel):
     center_id: str
     center_name: str
     establishment_date: int
-    name_and_purpose: str
+    purpose: str
     sponsor: str
     department_name: str
 
@@ -41,13 +42,13 @@ class COE(BaseModel):
 
 
 class Report(BaseModel):
-    report_id: int
+    report_id: Optional[int]
     report_status: ReportStatus
     report: str
     submission_date: int
     due_date: int
 
-    center_id: int
+    center_id: str
 
     class Config:
         orm_mode = True

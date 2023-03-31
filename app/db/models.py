@@ -23,7 +23,7 @@ class COE(Base):
     center_id = Column(String, primary_key=True, index=True)
     center_name = Column(String, index=True)
     establishment_date = Column(Integer, index=True)
-    name_and_purpose = Column(String)
+    purpose = Column(String)
     sponsor = Column(String)
     department_name = Column(String)
 
