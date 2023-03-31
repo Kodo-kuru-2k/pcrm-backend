@@ -1,54 +1,42 @@
-import enum
-from typing import Optional
+from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Enum
+from sqlalchemy.ext.declarative import declarative_base
 
-from pydantic import BaseModel
+from app.db.models import UserLevels, ReportStatus
 
-
-class UserLevels(enum.Enum):
-    Admin = 'Admin'
-    User = 'User'
-    PowerUser = 'PowerUser'
+Base = declarative_base()
 
 
-class ReportStatus(enum.Enum):
-    Draft = 'Draft'
-    Submitted = 'Submitted'
+class UserSchema(Base):
+    __tablename__ = "users"
+
+    emp_id = Column(String, primary_key=True, index=True)
+    name = Column(String, index=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String)
+    is_active = Column(Boolean, default=True)
+    permissions = Column(Enum(UserLevels))
 
 
-class User(BaseModel):
-    emp_id: str
-    name: str
-    email: str
-    password: str
-    is_active: bool = True
-    permissions: UserLevels
+class COESchema(Base):
+    __tablename__ = "coe"
 
-    class Config:
-        orm_mode = True
+    center_id = Column(String, primary_key=True, index=True)
+    center_name = Column(String, index=True)
+    establishment_date = Column(Integer, index=True)
+    purpose = Column(String)
+    sponsor = Column(String)
+    department_name = Column(String)
 
-
-class COE(BaseModel):
-    center_id: str
-    center_name: str
-    establishment_date: int
-    purpose: str
-    sponsor: str
-    department_name: str
-
-    department_head: str
-
-    class Config:
-        orm_mode = True
+    department_head = Column(ForeignKey("users.emp_id"))
 
 
-class Report(BaseModel):
-    report_id: Optional[int]
-    report_status: ReportStatus
-    report: str
-    submission_date: int
-    due_date: int
+class ReportSchema(Base):
+    __tablename__ = "report"
 
-    center_id: str
+    report_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
+    report_status = Column(Enum(ReportStatus))
+    report = Column(String)
+    submission_date = Column(Integer)
+    due_date = Column(Integer)
 
-    class Config:
-        orm_mode = True
+    center_id = Column(ForeignKey("coe.center_id"))

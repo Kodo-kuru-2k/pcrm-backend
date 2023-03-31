@@ -1,42 +1,62 @@
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Enum
-from sqlalchemy.ext.declarative import declarative_base
+import enum
+from typing import Optional, Union
 
-from app.db.schemas import UserLevels, ReportStatus
+from pydantic import BaseModel
 
-Base = declarative_base()
-
-
-class User(Base):
-    __tablename__ = "users"
-
-    emp_id = Column(String, primary_key=True, index=True)
-    name = Column(String, index=True)
-    email = Column(String, unique=True, index=True)
-    password = Column(String)
-    is_active = Column(Boolean, default=True)
-    permissions = Column(Enum(UserLevels))
+from app.services.pdf_models import PDFModelFinal, PDFModelDraft
 
 
-class COE(Base):
-    __tablename__ = "coe"
-
-    center_id = Column(String, primary_key=True, index=True)
-    center_name = Column(String, index=True)
-    establishment_date = Column(Integer, index=True)
-    purpose = Column(String)
-    sponsor = Column(String)
-    department_name = Column(String)
-
-    department_head = Column(ForeignKey('users.emp_id'))
+class UserLevels(enum.Enum):
+    Admin = "Admin"
+    User = "User"
+    PowerUser = "PowerUser"
 
 
-class Report(Base):
-    __tablename__ = "report"
+class ReportStatus(enum.Enum):
+    Draft = "Draft"
+    Submitted = "Submitted"
 
-    report_id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    report_status = Column(Enum(ReportStatus))
-    report = Column(String)
-    submission_date = Column(Integer)
-    due_date = Column(Integer)
 
-    center_id = Column(ForeignKey('coe.center_id'))
+class UserModel(BaseModel):
+    emp_id: str
+    name: str
+    email: str
+    password: str
+    is_active: bool = True
+    permissions: UserLevels
+
+    class Config:
+        orm_mode = True
+
+
+class COEModel(BaseModel):
+    center_id: str
+    center_name: str
+    establishment_date: int
+    purpose: str
+    sponsor: str
+    department_name: str
+
+    department_head: str
+
+    class Config:
+        orm_mode = True
+
+
+class ReportModel(BaseModel):
+    report_id: Optional[int]
+    report_status: ReportStatus
+    report: str
+    submission_date: Optional[int]
+    due_date: int
+
+    center_id: str
+
+    class Config:
+        orm_mode = True
+
+
+class ReportUpdateModel(BaseModel):
+    report_id: int
+    report: Union[PDFModelFinal, PDFModelDraft]
+    report_status: ReportStatus

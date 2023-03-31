@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body{
+        width: 21cm;
+        height: 29.7cm;
+        margin: 30mm 45mm 30mm 15mm;
+        }
+        table, th, td {
+            border: 1px solid;
+            border-collapse: collapse;
+            text-align: center;
+        }
+    </style>
+</head>
+    <body>
+        <p style="text-align: center"><strong>PSG COLLEGE OF TECHNOLOGY : COIMBATORE - 641004</strong></p>
+        <p style="text-align: center"><strong>Report on Centre Activities</strong></p>
+        <h3>1. Status report</h3>
+        <ul>
+            <li>Date of establishment : {{ establishment_date }}</li>
+            <li>Name and Purpose of the Centre : {{ center_name }}, {{ purpose }}</li>
+            <li>Centre Incharge : {{ coe_head_name }}</li>
+            <li>Funded by - Management/DST/AICTE/Others (specify) : {{ sponsor }}</li>
+            <li>List of Hardware and Software</li>
+        </ul>
+        <p><strong>Hardware</strong></p>
+        <table>
+            <thead>
+            <tr>
+                <th><strong>S No</strong></th>
+                <th><strong>Description</strong></th>
+                <th><strong>Quantity</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in hardware %}
+            <tr>
+                <td>{{ item.sno }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.quantity }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <p><strong>Software</strong></p>
+        <table>
+            <thead>
+            <tr>
+                <th><strong>S No</strong></th>
+                <th><strong>Description</strong></th>
+                <th><strong>Quantity</strong></th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in software %}
+            <tr>
+                <td>{{ item.sno }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.quantity }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <ul>
+            <li>Other features (if any) : {{other_features}}</li>
+            <li>Name and Designation of Technical Staff: {{name_and_designation_of_technical_staff}}</li>
+            <li>Number of hours and laboratory sessions used for students academic work:</li>
+        </ul>
+        <table>
+            <thead>
+            <tr>
+                <th>Hours Days</th>
+                <th>1 (8.30-9.20)</th>
+                <th>1 (9.20-10.10)</th>
+                <th>3 (10.30-11.20)</th>
+                <th>4 (11.20-12.10)</th>
+                <th>5 (1.40-12.10)</th>
+                <th>6 (2.30-3.20)</th>
+                <th>7 (3.30-4.20)</th>
+                <th>8 (4.20-5.10)</th>
+                <th>9 (5.30-6.20)</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item, value in laboratory_use.items() %}
+                <tr>
+                    <td>{{item}}</td>
+                    {% for val in value %}
+                        <td>{{val}}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <ul>
+            <li>Research Activities (if any) (PG/PhD)
+                <ul>
+                    <li>Name of the candidate: {{research_activities.candidate_name}}</li>
+                    <li>Supervisor: {{research_activities.supervisor}}</li>
+                </ul>
+            </li>
+        </ul>
+        <h3>2. Fund raising activities conducted during the
+            month(s) of 2023</h3>
+        <p>Consultancy / Testing Activities</p>
+        <table>
+            <thead>
+            <tr>
+                <th>S No</th>
+                <th>Client</th>
+                <th>Nature of Work</th>
+                <th>Revenue generated (inclusive of tax) in INR</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for item in consultancy_activities %}
+            <tr>
+                <td>{{item.sno}}</td>
+                <td>{{item.client}}</td>
+                <td>{{item.nature_of_work}}</td>
+                <td>{{item.revenue_generated}}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <h3>3. Courses and Workshops conducted</h3>
+        <ul>
+            <li>Total number of courses conducted :{{total_number_of_courses_conducted}}</li>
+            <li>Total number of participants :{{total_number_of_participants}}</li>
+            <li>Revenue generated :{{revenue_generated}}</li>
+        </ul>
+        <br>
+        <br>
+        <br>
+        <div style="position: relative">
+            <div style="position: absolute; left: 0;">
+                <strong style="text-align: right">Signature of the Centre Incharge</strong>
+            </div>
+            <div style="position: absolute; right: 0;">
+                <strong style="text-align: left">Signature of the HoD</strong>
+            </div>
+        </div>
+    </body>
+</html>

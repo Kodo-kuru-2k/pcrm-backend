@@ -4,20 +4,24 @@ from pydantic import BaseModel
 
 
 class Hardware(BaseModel):
-    pass
+    sno: str
+    description: str
+    quantity: str
 
 
 class Software(BaseModel):
-    pass
+    sno: str
+    description: str
+    quantity: str
 
 
 class LaboratoryUse(BaseModel):
-    monday: list
-    tuesday: list
-    wednesday: list
-    thursday: list
-    friday: list
-    saturday: list
+    MON: list
+    TUE: list
+    WED: list
+    THU: list
+    FRI: list
+    SAT: list
 
 
 class ResearchActivities(BaseModel):
@@ -33,13 +37,14 @@ class ConsultancyActivities(BaseModel):
 
 
 class PDFModelDraft(BaseModel):
-    ''' from db'''
+    """from db"""
+
     establishment_date: Optional[int]
     center_name: Optional[str]
     purpose: Optional[str]
     coe_head_name: Optional[str]
     sponsor: Optional[str]
-    '''----'''
+    """----"""
 
     hardware: Optional[List[Hardware]]
     software: Optional[List[Software]]
@@ -58,13 +63,11 @@ class PDFModelDraft(BaseModel):
 
 
 class PDFModelFinal(BaseModel):
-    ''' from db'''
     establishment_date: int
     center_name: str
     purpose: str
     coe_head_name: str
     sponsor: str
-    '''----'''
 
     hardware: List[Hardware]
     software: List[Software]
