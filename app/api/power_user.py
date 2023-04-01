@@ -6,34 +6,42 @@ from starlette.responses import StreamingResponse
 
 from app.db.models import ReportModel, ReportUpdateModel
 from app.dependencies import DependencyContainer
-from app.services.user_services import UserService
+from app.services.user_services import UserService, PowerUserService
 
 router = APIRouter()
 
 
-@router.get("/users/pending-reports", tags=["users"])
-async def get_pending_reports(
-    emp_id: str,
+@router.get("/power-user/all-users", tags=["power_user"])
+async def get_all_user(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
 ) -> list[ReportModel]:
     with dependency_container.get_db() as db:
-        reports = UserService.fetch_pending_reports_by_user(db, emp_id)
+        reports = PowerUserService.fetch_all_users(db)
 
     return reports
 
 
-@router.get("/users/submitted-reports", tags=["users"])
-async def get_submitted_reports(
-    emp_id: str,
+@router.get("/power-user/all-coe", tags=["power_user"])
+async def get_all_coe(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
 ) -> list[ReportModel]:
     with dependency_container.get_db() as db:
-        reports = UserService.fetch_submitted_reports_by_user(db, emp_id)
+        reports = PowerUserService.fetch_all_coe(db)
 
     return reports
 
 
-@router.get("/users/generate-report", tags=["users"])
+@router.get("/power-user/all-reports", tags=["power_user"])
+async def get_all_reports(
+    dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+) -> list[ReportModel]:
+    with dependency_container.get_db() as db:
+        reports = PowerUserService.fetch_all_reports(db)
+
+    return reports
+
+
+@router.get("/power-user/generate-report", tags=["power_user"])
 async def generate_report(
     report_id: int,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
@@ -48,17 +56,7 @@ async def generate_report(
                 "Content-Disposition": "attachment; filename=report.pdf",
                 "Content-Type": "application/pdf",
             }
-            print(file_contents)
             response = StreamingResponse(
                 content=file_contents, status_code=status.HTTP_200_OK, headers=headers
             )
             return response
-
-
-@router.patch("/users/update-report", tags=["users"])
-async def update_report(
-    report: ReportUpdateModel,
-    dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-):
-    with dependency_container.get_db() as db:
-        UserService.update_user_level_report(db, report=report)

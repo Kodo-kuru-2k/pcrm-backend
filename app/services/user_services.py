@@ -45,8 +45,8 @@ class UserService:
         return reports
 
     @staticmethod
-    def update_report(db: Session, report: ReportUpdateModel):
-        ReportCRUD.update_report(db, report)
+    def update_user_level_report(db: Session, report: ReportUpdateModel):
+        ReportCRUD.update_user_level_report(db, report)
 
     @staticmethod
     def generate_pdf(
@@ -104,7 +104,13 @@ class PowerUserService(UserService):
     def fetch_all_reports(db: Session):
         return ReportCRUD.get_all_reports(db)
 
+
+class AdminService(PowerUserService):
     """create"""
+
+    @staticmethod
+    def add_new_user(db: Session, new_user: UserModel):
+        UserCRUD.create_user(db, new_user)
 
     @staticmethod
     def add_new_coe(db: Session, coe: COEModel):
@@ -114,13 +120,25 @@ class PowerUserService(UserService):
     def add_new_report(db: Session, report: ReportModel):
         ReportCRUD.create_report(db, report)
 
-    """modify"""
+    """ modify """
+
+    @staticmethod
+    def update_user(db: Session, user: UserModel):
+        UserCRUD.update_user(db, user=user)
+
+    @staticmethod
+    def update_report(db: Session, report: ReportModel):
+        ReportCRUD.update_report(db, report)
 
     @staticmethod
     def update_coe(db: Session, coe: COEModel):
         CenterOfExcellenceCRUD.update_coe(db, coe=coe)
 
-    """delete"""
+    """ delete """
+
+    @staticmethod
+    def delete_user_by_user_id(db: Session, emp_id: str):
+        UserCRUD.delete_user_by_employee_id(db, emp_id=emp_id)
 
     @staticmethod
     def delete_coe(db: Session, center_id: str):
@@ -129,23 +147,3 @@ class PowerUserService(UserService):
     @staticmethod
     def delete_report(db: Session, report_id: int):
         ReportCRUD.delete_report_by_report_id(db, report_id=report_id)
-
-
-class AdminService(PowerUserService):
-    """create"""
-
-    @staticmethod
-    def add_new_user(db: Session, new_user: UserModel):
-        UserCRUD.create_user(db, new_user)
-
-    """ modify """
-
-    @staticmethod
-    def update_user(db: Session, user: UserModel):
-        UserCRUD.update_user(db, user=user)
-
-    """ delete """
-
-    @staticmethod
-    def delete_user_by_user_id(db: Session, emp_id: str):
-        UserCRUD.delete_user_by_employee_id(db, emp_id=emp_id)

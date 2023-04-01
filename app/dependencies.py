@@ -1,7 +1,8 @@
 import os
 from pathlib import Path
 
-from sqlalchemy import create_engine
+from Crypto.Hash import SHA256
+from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 from dotenv import load_dotenv
@@ -13,7 +14,7 @@ load_dotenv()
 
 
 class DependencyContainer:
-    USER = None
+    APP_USER = None
     APP_PASSWORD = None
     SECRET_KEY = None
     BASE_PATH = None
@@ -45,6 +46,10 @@ class DependencyContainer:
         cls.PASSWORD_RESET_HANDLER = PasswordResetHandler(
             cls.APP_USER, cls.APP_PASSWORD, cls.SECRET_KEY.encode("utf-8")
         )
+        cls.SHA256 = SHA256.new()
+
+        with cls.ENGINE.connect() as conn:
+            conn.execute(text("PRAGMA foreign_keys = ON"))
 
     @classmethod
     @contextmanager

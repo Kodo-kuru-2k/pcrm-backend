@@ -1,5 +1,4 @@
 import datetime
-import json
 from typing import List
 
 from sqlalchemy.orm import Session
@@ -59,12 +58,12 @@ class UserCRUD:
 
     @staticmethod
     def delete_user_by_employee_id(db: Session, emp_id: str) -> None:
-        db.query(UserSchema).filter(UserSchema.emp_id == emp_id).first().delete()
+        db.query(UserSchema).filter(UserSchema.emp_id == emp_id).delete()
         db.commit()
 
     @staticmethod
     def delete_user_by_email(db: Session, email: str) -> None:
-        db.query(UserSchema).filter(UserSchema.email == email).first().delete()
+        db.query(UserSchema).filter(UserSchema.email == email).delete()
         db.commit()
 
 
@@ -121,14 +120,12 @@ class CenterOfExcellenceCRUD:
 
     @staticmethod
     def delete_coe_by_center_id(db: Session, center_id: str) -> None:
-        db.query(COESchema).filter(COESchema.center_id == center_id).first().delete()
+        db.query(COESchema).filter(COESchema.center_id == center_id).delete()
         db.commit()
 
     @staticmethod
     def delete_user_by_center_name(db: Session, center_name: str) -> None:
-        db.query(COESchema).filter(
-            COESchema.center_name == center_name
-        ).first().delete()
+        db.query(COESchema).filter(COESchema.center_name == center_name).delete()
         db.commit()
 
 
@@ -195,7 +192,7 @@ class ReportCRUD:
         db.commit()
 
     @staticmethod
-    def update_report(db: Session, report: ReportUpdateModel) -> None:
+    def update_user_level_report(db: Session, report: ReportUpdateModel) -> None:
         existing_report = (
             db.query(ReportSchema)
             .filter(ReportSchema.report_id == report.report_id)
@@ -204,6 +201,20 @@ class ReportCRUD:
         existing_report.report_status = report.report_status
         existing_report.report = report.report.json()
         existing_report.submission_date = datetime.datetime.now().timestamp()
+        db.commit()
+
+    @staticmethod
+    def update_report(db: Session, report: ReportModel) -> None:
+        existing_report = (
+            db.query(ReportSchema)
+            .filter(ReportSchema.report_id == report.report_id)
+            .first()
+        )
+        existing_report.report_status = report.report_status
+        existing_report.report = report.report
+        existing_report.submission_date = datetime.datetime.now().timestamp()
+        existing_report.due_date = report.due_date
+        existing_report.center_id = report.center_id
         db.commit()
 
     @staticmethod
@@ -222,7 +233,5 @@ class ReportCRUD:
 
     @staticmethod
     def delete_report_by_report_id(db: Session, report_id: int) -> None:
-        db.query(ReportSchema).filter(
-            ReportSchema.report_id == report_id
-        ).first().delete()
+        db.query(ReportSchema).filter(ReportSchema.report_id == report_id).delete()
         db.commit()
