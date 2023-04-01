@@ -76,7 +76,7 @@ class CenterOfExcellenceCRUD:
 
     @staticmethod
     def get_coe_by_user_head(db: Session, emp_id: str) -> List[COEModel]:
-        all_coe = db.query(COESchema).filter(COESchema.department_head == emp_id)
+        all_coe = db.query(COESchema).filter(COESchema.center_incharge == emp_id)
         return [COEModel.from_orm(coe) for coe in all_coe]
 
     @staticmethod
@@ -99,7 +99,7 @@ class CenterOfExcellenceCRUD:
             purpose=coe.purpose,
             sponsor=coe.sponsor,
             department_name=coe.department_name,
-            department_head=coe.department_head,
+            center_incharge=coe.center_incharge,
         )
         db.add(db_coe)
         db.commit()
@@ -115,7 +115,7 @@ class CenterOfExcellenceCRUD:
         existing_coe.purpose = coe.purpose
         existing_coe.sponsor = coe.sponsor
         existing_coe.department_name = coe.department_name
-        existing_coe.department_head = coe.department_head
+        existing_coe.center_incharge = coe.center_incharge
         db.commit()
 
     @staticmethod

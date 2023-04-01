@@ -37,7 +37,7 @@ class COEModel(BaseModel):
     sponsor: str
     department_name: str
 
-    department_head: str
+    center_incharge: str
 
     class Config:
         orm_mode = True

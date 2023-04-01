@@ -27,7 +27,7 @@ class COESchema(Base):
     sponsor = Column(String)
     department_name = Column(String)
 
-    department_head = Column(ForeignKey("users.emp_id"))
+    center_incharge = Column(ForeignKey("users.emp_id"))
 
 
 class ReportSchema(Base):

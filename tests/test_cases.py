@@ -76,7 +76,7 @@ if __name__ == "__main__":
         purpose="test coe 1",
         sponsor="me",
         department_name="someone",
-        department_head="user123",
+        center_incharge="user123",
     )
     new_coe_2 = COEModel(
         center_id="center456",
@@ -85,7 +85,7 @@ if __name__ == "__main__":
         purpose="test coe 2",
         sponsor="me",
         department_name="noone",
-        department_head="user123",
+        center_incharge="user123",
     )
     new_report = ReportModel(
         report_status=ReportStatus.Draft,
@@ -134,7 +134,7 @@ if __name__ == "__main__":
             purpose="test coe 3",
             sponsor="me",
             department_name="noone",
-            department_head="user123",
+            center_incharge="user123",
         )
         modify_report = ReportModel(
             report_id=1,

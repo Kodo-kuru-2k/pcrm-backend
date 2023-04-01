@@ -19,7 +19,7 @@ admin fetch data
 @router.get("/admin/all-users", tags=["admin"])
 async def get_all_user(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-) -> list[ReportModel]:
+) -> list[UserModel]:
     with dependency_container.get_db() as db:
         reports = AdminService.fetch_all_users(db)
 
@@ -29,7 +29,7 @@ async def get_all_user(
 @router.get("/admin/all-coe", tags=["admin"])
 async def get_all_coe(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-) -> list[ReportModel]:
+) -> list[COEModel]:
     with dependency_container.get_db() as db:
         reports = AdminService.fetch_all_coe(db)
 

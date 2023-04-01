@@ -7,6 +7,7 @@ from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 from dotenv import load_dotenv
 
+from app.db.schemas import Base
 from app.services.password_reset import PasswordResetHandler
 from app.services.pdf_gen_service import ReportGenerator
 
@@ -47,6 +48,10 @@ class DependencyContainer:
             cls.APP_USER, cls.APP_PASSWORD, cls.SECRET_KEY.encode("utf-8")
         )
         cls.SHA256 = SHA256.new()
+
+        if not os.path.isfile(f"{cls.BASE_PATH}/sql_app.db"):
+            Base.metadata.create_all(cls.ENGINE)
+            print("database created")
 
         with cls.ENGINE.connect() as conn:
             conn.execute(text("PRAGMA foreign_keys = ON"))
