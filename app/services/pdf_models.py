@@ -37,14 +37,11 @@ class ConsultancyActivities(BaseModel):
 
 
 class PDFModelDraft(BaseModel):
-    """from db"""
-
     establishment_date: Optional[int]
     center_name: Optional[str]
     purpose: Optional[str]
     coe_head_name: Optional[str]
     sponsor: Optional[str]
-    """----"""
 
     hardware: Optional[List[Hardware]]
     software: Optional[List[Software]]

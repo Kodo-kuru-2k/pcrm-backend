@@ -65,7 +65,7 @@ if __name__ == "__main__":
     new_user = UserModel(
         emp_id="user123",
         name="firstuser",
-        email="abc@xyz.com",
+        email="19pt28@psgtech.ac.in",
         password="somepassword",
         permissions=UserLevels.User,
     )
@@ -117,7 +117,7 @@ if __name__ == "__main__":
         pprint.pprint(reports)
         print(len(reports))
         print(AdminService.fetch_all_users(db))
-        print(AdminService.fetch_user_by_email(db, email="abc@xyz.com"))
+        print(AdminService.fetch_user_by_email(db, email="19pt28@psgtech.ac.in"))
 
         modify_user = UserModel(
             emp_id="user123",

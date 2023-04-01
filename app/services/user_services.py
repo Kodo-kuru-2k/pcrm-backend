@@ -17,6 +17,10 @@ from app.services.pdf_models import PDFModelFinal
 
 class UserService:
     @staticmethod
+    def fetch_user_by_emp_id(db: Session, emp_id: str):
+        return UserCRUD.get_user_by_employee_id(db, emp_id)
+
+    @staticmethod
     def fetch_user_by_email(db: Session, email: str):
         return UserCRUD.get_user_by_email(db, email)
 

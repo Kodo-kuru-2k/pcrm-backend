@@ -4,11 +4,12 @@ from fastapi import FastAPI
 from app.db.schemas import Base
 from app.dependencies import DependencyContainer
 
-from app.api import user
+from app.api import user, common
 
 app = FastAPI()
 
 app.include_router(user.router)
+app.include_router(common.router)
 
 if __name__ == "__main__":
     DependencyContainer.initialize_container()

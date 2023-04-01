@@ -1,5 +1,5 @@
 .DS_Store
-.env
+*.env
 .flaskenv
 *.pyc
 *.pyo
@@ -21,6 +21,7 @@ docs/_build/
 *.db
 *.http
 *.pdf
+*.json
 # Coverage reports
 htmlcov/
 .coverage
