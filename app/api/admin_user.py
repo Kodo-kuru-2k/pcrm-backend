@@ -8,6 +8,7 @@ from app.db.models import ReportModel, COEModel, UserModel
 from app.dependencies import DependencyContainer
 from app.services.password_hash import PasswordHash
 from app.services.user_services import AdminService
+from app.services.user_services_models import DateModel
 
 router = APIRouter()
 
@@ -72,12 +73,14 @@ admin create data
 """
 
 
-# @router.post('/admin/create-report-for-each-quarter', tags=["admin"])
-# async def create_new_report_for_each_quarter(
-#         quarter: int,
-#         dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-# ):
-#     pass
+@router.post("/admin/create-report-for-each-quarter", tags=["admin"])
+async def create_new_report_for_each_quarter(
+    date_model: DateModel,
+    dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+):
+    with dependency_container.get_db() as db:
+        AdminService.add_reports_for_all_coe_based_on_quarter(db, date_model)
+    return Response(status_code=status.HTTP_200_OK)
 
 
 @router.post("/admin/create-report", tags=["admin"])

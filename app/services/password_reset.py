@@ -14,7 +14,8 @@ class PasswordResetHandler:
         self.user = user
         self.password = password
 
-        self.iv = os.urandom(16)
+        self.block_size = 16
+        self.iv = os.urandom(self.block_size)
         self.secret_key = secret_key
         self.cipher = None
 
@@ -23,7 +24,9 @@ class PasswordResetHandler:
         recovery_string = f"{emp_id}+{int((datetime.now() + timedelta(minutes=15)).timestamp())}".encode(
             "utf-8"
         )
-        enc_recovery_string = self.cipher.encrypt(plaintext=pad(recovery_string, 16))
+        enc_recovery_string = self.cipher.encrypt(
+            plaintext=pad(recovery_string, self.block_size)
+        )
         return base64.urlsafe_b64encode(enc_recovery_string).decode("utf-8")
 
     def send_recovery_link(self, to: str, emp_id: str) -> None:
@@ -43,9 +46,9 @@ class PasswordResetHandler:
         enc_recovery_string = base64.urlsafe_b64decode(
             enc_recovery_string.encode("utf-8")
         )
-        recovery_string = unpad(self.cipher.decrypt(enc_recovery_string), 16).decode(
-            "utf-8"
-        )
+        recovery_string = unpad(
+            self.cipher.decrypt(enc_recovery_string), self.block_size
+        ).decode("utf-8")
         emp_id, time = recovery_string.split("+")
         if datetime.now().timestamp() >= int(time):
             return None

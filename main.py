@@ -15,4 +15,4 @@ app.include_router(admin_user.router)
 
 if __name__ == "__main__":
     DependencyContainer.initialize_container()
-    uvicorn.run(app, host="0.0.0.0", port=5000)
+    uvicorn.run(app, host="localhost", port=5000)

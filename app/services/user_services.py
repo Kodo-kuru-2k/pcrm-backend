@@ -1,3 +1,4 @@
+import datetime
 import json
 from typing import List
 
@@ -12,7 +13,8 @@ from app.db.models import (
     ReportStatus,
 )
 from app.services.pdf_gen_service import ReportGenerator
-from app.services.pdf_models import PDFModelWithCenterDetails
+from app.services.pdf_models import PDFModelWithCenterDetails, PDFModelDraft
+from app.services.user_services_models import DateModel
 
 
 class UserService:
@@ -50,17 +52,21 @@ class UserService:
 
     @staticmethod
     def generate_pdf(
-        db: Session, report_id: int, report_generator: ReportGenerator, file_name: str
+        db: Session,
+        report: ReportModel,
+        report_generator: ReportGenerator,
+        file_name: str,
     ):
-        report = ReportCRUD.get_report_by_report_id(db, report_id)
-        if report.report_status == ReportStatus.Draft:
-            raise Exception("Report is a Draft")
         dict_report = json.loads(report.report)
 
         coe = CenterOfExcellenceCRUD.get_coe_by_center_id(
             db, center_id=report.center_id
         )
+        center_incharge_name = UserCRUD.get_user_by_employee_id(
+            db, emp_id=coe.center_incharge
+        ).name
         dict_report.update(coe.dict())
+        dict_report["center_incharge"] = center_incharge_name
 
         report_generator.generate_pdf(
             file_name=file_name,
@@ -114,6 +120,29 @@ class PowerUserService(UserService):
 
 class AdminService(PowerUserService):
     """create"""
+
+    @staticmethod
+    def add_reports_for_all_coe_based_on_quarter(db: Session, date_model: DateModel):
+        end_date = int(
+            datetime.datetime(
+                year=date_model.year,
+                month=date_model.end_month,
+                day=30,
+                hour=0,
+                minute=0,
+                second=0,
+                microsecond=0,
+            ).timestamp()
+        )
+        for coe in CenterOfExcellenceCRUD.get_all_coe(db):
+            report_model = ReportModel(
+                report_status=ReportStatus.Draft,
+                report=PDFModelDraft().json(),
+                due_date=end_date,
+                center_id=coe.center_id,
+            )
+            # print(report_model)
+            ReportCRUD.create_report(db, report=report_model)
 
     @staticmethod
     def add_new_user(db: Session, new_user: UserModel):

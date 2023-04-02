@@ -1,11 +1,11 @@
 import tempfile
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Response, Cookie
-from fastapi_jwt_auth import AuthJWT
-from starlette.responses import StreamingResponse
+from fastapi import APIRouter, Depends, status
+from starlette.responses import StreamingResponse, JSONResponse
 
-from app.db.models import ReportModel, ReportUpdateModel, TokenData
+from app.db.crud import ReportCRUD
+from app.db.models import ReportModel, ReportUpdateModel, TokenData, ReportStatus
 from app.dependencies import DependencyContainer
 from app.services.auth import parse_token
 from app.services.user_services import UserService
@@ -45,8 +45,16 @@ async def generate_report(
     with dependency_container.get_db() as db:
         with tempfile.NamedTemporaryFile(suffix=".pdf") as temp:
             report_generator = dependency_container.REPORT_GENERATOR
+
+            report = ReportCRUD.get_report_by_report_id(db, report_id)
+            if report.report_status == ReportStatus.Draft:
+                return JSONResponse(
+                    content={"message": "report is a draft"},
+                    status_code=status.HTTP_404_NOT_FOUND,
+                )
+
             file_contents = UserService.generate_pdf(
-                db, report_id, report_generator=report_generator, file_name=temp.name
+                db, report, report_generator=report_generator, file_name=temp.name
             )
             headers = {
                 "Content-Disposition": "attachment; filename=report.pdf",

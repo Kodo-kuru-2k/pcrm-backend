@@ -10,15 +10,14 @@ from dotenv import load_dotenv
 from app.db.schemas import Base
 from app.services.password_reset import PasswordResetHandler
 from app.services.pdf_gen_service import ReportGenerator
+from app.settings import Settings
 
 load_dotenv()
 
 
 class DependencyContainer:
-    APP_USER = None
-    APP_PASSWORD = None
-    SECRET_KEY = None
     BASE_PATH = None
+    SETTINGS = None
     TEMPLATE_FOLDER_PATH = None
     SQLALCHEMY_DATABASE_URL = None
     ENGINE = None
@@ -28,11 +27,9 @@ class DependencyContainer:
 
     @classmethod
     def initialize_container(cls):
-        cls.APP_USER = os.environ.get("APP_USER")
-        cls.APP_PASSWORD = os.environ.get("PASSWORD")
-        cls.SECRET_KEY = f"{os.environ.get('SECRET_KEY')}=="
-
         cls.BASE_PATH = Path(os.path.abspath(__file__)).parent.parent
+        cls.SETTINGS = Settings(_secrets_dir=DependencyContainer.BASE_PATH)
+
         cls.TEMPLATE_FOLDER_PATH = os.path.join(cls.BASE_PATH, "templates")
         cls.SQLALCHEMY_DATABASE_URL = (
             "sqlite:///" + cls.BASE_PATH.__str__() + "/sql_app.db"
@@ -45,7 +42,9 @@ class DependencyContainer:
         )
         cls.REPORT_GENERATOR = ReportGenerator(cls.TEMPLATE_FOLDER_PATH)
         cls.PASSWORD_RESET_HANDLER = PasswordResetHandler(
-            cls.APP_USER, cls.APP_PASSWORD, cls.SECRET_KEY.encode("utf-8")
+            cls.SETTINGS.app_user,
+            cls.SETTINGS.app_password,
+            cls.SETTINGS.secret_key.encode("utf-8"),
         )
         cls.SHA256 = SHA256.new()
 
