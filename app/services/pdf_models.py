@@ -37,12 +37,6 @@ class ConsultancyActivities(BaseModel):
 
 
 class PDFModelDraft(BaseModel):
-    establishment_date: Optional[int]
-    center_name: Optional[str]
-    purpose: Optional[str]
-    coe_head_name: Optional[str]
-    sponsor: Optional[str]
-
     hardware: Optional[List[Hardware]]
     software: Optional[List[Software]]
 
@@ -60,12 +54,6 @@ class PDFModelDraft(BaseModel):
 
 
 class PDFModelFinal(BaseModel):
-    establishment_date: int
-    center_name: str
-    purpose: str
-    coe_head_name: str
-    sponsor: str
-
     hardware: List[Hardware]
     software: List[Software]
 
@@ -80,3 +68,11 @@ class PDFModelFinal(BaseModel):
     total_number_of_courses_conducted: int
     total_number_of_participants: int
     revenue_generated: int
+
+
+class PDFModelWithCenterDetails(PDFModelFinal):
+    establishment_date: int
+    center_name: str
+    purpose: str
+    center_incharge: str
+    sponsor: str

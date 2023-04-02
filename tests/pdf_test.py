@@ -8,7 +8,7 @@ test_json = {
     "establishment_date": 384280159,
     "center_name": "ABC Center",
     "purpose": "Research and Development",
-    "coe_head_name": "John Doe",
+    "center_incharge": "John Doe",
     "sponsor": "XYZ Corporation",
     "hardware": [
         {"sno": "1", "description": "Computer, Dell XPS", "quantity": "5"},

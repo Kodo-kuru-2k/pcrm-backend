@@ -1,11 +1,13 @@
 import tempfile
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, status, Response
+from fastapi import APIRouter, Depends, status, Response, Cookie
+from fastapi_jwt_auth import AuthJWT
 from starlette.responses import StreamingResponse
 
-from app.db.models import ReportModel, ReportUpdateModel
+from app.db.models import ReportModel, ReportUpdateModel, TokenData
 from app.dependencies import DependencyContainer
+from app.services.auth import parse_token
 from app.services.user_services import UserService
 
 router = APIRouter()
@@ -13,22 +15,23 @@ router = APIRouter()
 
 @router.get("/users/pending-reports", tags=["users"])
 async def get_pending_reports(
-    emp_id: str,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ) -> list[ReportModel]:
     with dependency_container.get_db() as db:
-        reports = UserService.fetch_pending_reports_by_user(db, emp_id)
+        reports = UserService.fetch_pending_reports_by_user(db, token_data.emp_id)
 
     return reports
 
 
 @router.get("/users/submitted-reports", tags=["users"])
 async def get_submitted_reports(
-    emp_id: str,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ) -> list[ReportModel]:
     with dependency_container.get_db() as db:
-        reports = UserService.fetch_submitted_reports_by_user(db, emp_id)
+        user = UserService.fetch_user_by_email(db, email=token_data.email)
+        reports = UserService.fetch_submitted_reports_by_user(db, user.emp_id)
 
     return reports
 
@@ -37,6 +40,7 @@ async def get_submitted_reports(
 async def generate_report(
     report_id: int,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
     with dependency_container.get_db() as db:
         with tempfile.NamedTemporaryFile(suffix=".pdf") as temp:
@@ -59,6 +63,7 @@ async def generate_report(
 async def update_report(
     report: ReportUpdateModel,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
     with dependency_container.get_db() as db:
         UserService.update_user_level_report(db, report=report)

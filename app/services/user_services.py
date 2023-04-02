@@ -12,7 +12,7 @@ from app.db.models import (
     ReportStatus,
 )
 from app.services.pdf_gen_service import ReportGenerator
-from app.services.pdf_models import PDFModelFinal
+from app.services.pdf_models import PDFModelWithCenterDetails
 
 
 class UserService:
@@ -56,8 +56,15 @@ class UserService:
         if report.report_status == ReportStatus.Draft:
             raise Exception("Report is a Draft")
         dict_report = json.loads(report.report)
+
+        coe = CenterOfExcellenceCRUD.get_coe_by_center_id(
+            db, center_id=report.center_id
+        )
+        dict_report.update(coe.dict())
+
         report_generator.generate_pdf(
-            file_name=file_name, render_data=PDFModelFinal.parse_obj(dict_report)
+            file_name=file_name,
+            render_data=PDFModelWithCenterDetails.parse_obj(dict_report),
         )
         with open(file=file_name, mode="rb") as file_like:
             yield file_like.read()

@@ -60,3 +60,16 @@ class ReportUpdateModel(BaseModel):
     report_id: int
     report: Union[PDFModelFinal, PDFModelDraft]
     report_status: ReportStatus
+
+
+class UserLoginModel(BaseModel):
+    email: str
+    password: str
+
+
+class TokenData(BaseModel):
+    emp_id: str
+    name: str
+    email: str
+    is_active: bool = True
+    permissions: UserLevels
