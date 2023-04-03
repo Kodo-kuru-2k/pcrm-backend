@@ -1,7 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
 
-from app.db.schemas import Base
 from app.dependencies import DependencyContainer
 
 from app.api import user, common, power_user, admin_user

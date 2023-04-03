@@ -17,7 +17,7 @@ build/
 .idea/
 docs/_build/
 .vscode
-*.txt
+*.txt1
 *.db
 *.http
 *.pdf
