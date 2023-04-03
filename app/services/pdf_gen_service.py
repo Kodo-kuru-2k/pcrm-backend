@@ -10,7 +10,7 @@ class ReportGenerator:
     def __init__(
         self,
         template_file_path: str,
-        wkhtmltopdf_location: str = "/usr/local/bin/wkhtmltopdf",
+        wkhtmltopdf_location: str,
     ):
         template_loader = jinja2.FileSystemLoader(template_file_path)
         template_env = jinja2.Environment(loader=template_loader)

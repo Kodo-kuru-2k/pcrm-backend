@@ -40,7 +40,10 @@ class DependencyContainer:
         cls.SESSION_LOCAL = sessionmaker(
             autocommit=False, autoflush=False, bind=cls.ENGINE
         )
-        cls.REPORT_GENERATOR = ReportGenerator(cls.TEMPLATE_FOLDER_PATH)
+        cls.REPORT_GENERATOR = ReportGenerator(
+            cls.TEMPLATE_FOLDER_PATH,
+            wkhtmltopdf_location=f"{cls.BASE_PATH}/non-pythonic-dependencies/wkhtmltopdf",
+        )
         cls.PASSWORD_RESET_HANDLER = PasswordResetHandler(
             cls.SETTINGS.app_user,
             cls.SETTINGS.app_password,
