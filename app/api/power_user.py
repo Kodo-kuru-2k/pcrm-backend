@@ -1,8 +1,8 @@
 import tempfile
-from typing import Annotated
+from typing import Annotated, Union
 
 from fastapi import APIRouter, Depends, status
-from starlette.responses import StreamingResponse, JSONResponse
+from starlette.responses import StreamingResponse, JSONResponse, Response
 
 from app.db.crud import ReportCRUD
 from app.db.models import (
@@ -11,6 +11,7 @@ from app.db.models import (
     ReportStatus,
     UserModel,
     COEModel,
+    UserLevels,
 )
 from app.dependencies import DependencyContainer
 from app.services.auth import parse_token
@@ -22,7 +23,10 @@ router = APIRouter()
 @router.get("/power-user/all-users", tags=["power_user"])
 async def get_all_user(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-) -> list[UserModel]:
+    token_data: TokenData = Depends(parse_token),
+):
+    if token_data.permissions != UserLevels.PowerUser:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         reports = PowerUserService.fetch_all_users(db)
 
@@ -32,7 +36,10 @@ async def get_all_user(
 @router.get("/power-user/all-coe", tags=["power_user"])
 async def get_all_coe(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-) -> list[COEModel]:
+    token_data: TokenData = Depends(parse_token),
+):
+    if token_data.permissions != UserLevels.PowerUser:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         reports = PowerUserService.fetch_all_coe(db)
 
@@ -42,7 +49,10 @@ async def get_all_coe(
 @router.get("/power-user/all-reports", tags=["power_user"])
 async def get_all_reports(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-) -> list[ReportModel]:
+    token_data: TokenData = Depends(parse_token),
+):
+    if token_data.permissions != UserLevels.PowerUser:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         reports = PowerUserService.fetch_all_reports(db)
 
@@ -55,6 +65,9 @@ async def generate_report(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
     token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.PowerUser:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
+
     with dependency_container.get_db() as db:
         with tempfile.NamedTemporaryFile(suffix=".pdf") as temp:
             report_generator = dependency_container.REPORT_GENERATOR

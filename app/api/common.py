@@ -23,8 +23,12 @@ async def set_cookie_for_login(
 ):
     with dependency_container.get_db() as db:
         existing_user = UserService.fetch_user_by_email(db, user.email)
-        if existing_user.email == user.email and PasswordHash.compare_hash(
-            user.password, hashed_password=existing_user.password
+        if (
+            existing_user.email == user.email
+            and PasswordHash.compare_hash(
+                user.password, hashed_password=existing_user.password
+            )
+            and existing_user.is_active
         ):
             existing_user = json.loads(existing_user.json())
             del existing_user["password"]

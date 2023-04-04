@@ -2,12 +2,21 @@ import tempfile
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, Response
-from starlette.responses import StreamingResponse
+from starlette.responses import StreamingResponse, JSONResponse
 
-from app.db.models import ReportModel, COEModel, UserModel
+from app.db.crud import ReportCRUD
+from app.db.models import (
+    ReportModel,
+    COEModel,
+    UserModel,
+    TokenData,
+    UserLevels,
+    ReportStatus,
+)
 from app.dependencies import DependencyContainer
+from app.services.auth import parse_token
 from app.services.password_hash import PasswordHash
-from app.services.user_services import AdminService
+from app.services.user_services import AdminService, UserService
 from app.services.user_services_models import DateModel
 
 router = APIRouter()
@@ -20,7 +29,10 @@ admin fetch data
 @router.get("/admin/all-users", tags=["admin"])
 async def get_all_user(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-) -> list[UserModel]:
+    token_data: TokenData = Depends(parse_token),
+):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         reports = AdminService.fetch_all_users(db)
 
@@ -30,7 +42,10 @@ async def get_all_user(
 @router.get("/admin/all-coe", tags=["admin"])
 async def get_all_coe(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-) -> list[COEModel]:
+    token_data: TokenData = Depends(parse_token),
+):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         reports = AdminService.fetch_all_coe(db)
 
@@ -40,7 +55,10 @@ async def get_all_coe(
 @router.get("/admin/all-reports", tags=["admin"])
 async def get_all_reports(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-) -> list[ReportModel]:
+    token_data: TokenData = Depends(parse_token),
+):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         reports = AdminService.fetch_all_reports(db)
 
@@ -51,17 +69,30 @@ async def get_all_reports(
 async def generate_report(
     report_id: int,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
+
     with dependency_container.get_db() as db:
         with tempfile.NamedTemporaryFile(suffix=".pdf") as temp:
             report_generator = dependency_container.REPORT_GENERATOR
-            file_contents = AdminService.generate_pdf(
-                db, report_id, report_generator=report_generator, file_name=temp.name
+
+            report = ReportCRUD.get_report_by_report_id(db, report_id)
+            if report.report_status == ReportStatus.Draft:
+                return JSONResponse(
+                    content={"message": "report is a draft"},
+                    status_code=status.HTTP_404_NOT_FOUND,
+                )
+
+            file_contents = UserService.generate_pdf(
+                db, report, report_generator=report_generator, file_name=temp.name
             )
             headers = {
                 "Content-Disposition": "attachment; filename=report.pdf",
                 "Content-Type": "application/pdf",
             }
+            print(file_contents)
             response = StreamingResponse(
                 content=file_contents, status_code=status.HTTP_200_OK, headers=headers
             )
@@ -77,7 +108,10 @@ admin create data
 async def create_new_report_for_each_quarter(
     date_model: DateModel,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         AdminService.add_reports_for_all_coe_based_on_quarter(db, date_model)
     return Response(status_code=status.HTTP_200_OK)
@@ -87,7 +121,10 @@ async def create_new_report_for_each_quarter(
 async def create_new_report(
     report_model: ReportModel,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         AdminService.add_new_report(db, report_model)
 
@@ -98,7 +135,10 @@ async def create_new_report(
 async def create_new_coe(
     ceo_model: COEModel,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         AdminService.add_new_coe(db, ceo_model)
 
@@ -109,7 +149,10 @@ async def create_new_coe(
 async def create_new_user(
     user_model: UserModel,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         user_model.password = PasswordHash.hash_password(user_model.password)
         AdminService.add_new_user(db, user_model)
@@ -126,7 +169,10 @@ modify data
 async def modify_user(
     user_model: UserModel,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         existing_model = AdminService.fetch_user_by_emp_id(db, user_model.emp_id)
         if existing_model.password != user_model.password:
@@ -141,7 +187,10 @@ async def modify_user(
 async def modify_coe(
     coe_model: COEModel,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         AdminService.update_coe(db, coe=coe_model)
     return Response(status_code=status.HTTP_200_OK)
@@ -151,7 +200,10 @@ async def modify_coe(
 async def modify_report(
     report_model: ReportModel,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         AdminService.update_report(db, report=report_model)
     return Response(status_code=status.HTTP_200_OK)
@@ -166,7 +218,10 @@ delete report
 async def delete_report(
     report_id: int,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         AdminService.delete_report(db, report_id=report_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -176,7 +231,10 @@ async def delete_report(
 async def delete_coe(
     center_id: str,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         AdminService.delete_coe(db, center_id=center_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -186,7 +244,10 @@ async def delete_coe(
 async def delete_user(
     user_id: str,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    token_data: TokenData = Depends(parse_token),
 ):
+    if token_data.permissions != UserLevels.Admin:
+        return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
         AdminService.delete_user_by_user_id(db, user_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

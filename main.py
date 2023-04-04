@@ -12,6 +12,12 @@ app.include_router(user.router)
 app.include_router(power_user.router)
 app.include_router(admin_user.router)
 
+
+@app.get("/openapi.json")
+async def get_openapi():
+    return app.openapi_schema(exclude_unset=True)
+
+
 if __name__ == "__main__":
     DependencyContainer.initialize_container()
     uvicorn.run(app, host="localhost", port=5000)

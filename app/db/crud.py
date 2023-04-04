@@ -198,6 +198,8 @@ class ReportCRUD:
             .filter(ReportSchema.report_id == report.report_id)
             .first()
         )
+        if existing_report.report_status == ReportStatus.Submitted:
+            return
         existing_report.report_status = report.report_status
         existing_report.report = report.report.json()
         existing_report.submission_date = datetime.datetime.now().timestamp()

@@ -51,10 +51,6 @@ class DependencyContainer:
         )
         cls.SHA256 = SHA256.new()
 
-        if not os.path.isfile(f"{cls.BASE_PATH}/sql_app.db"):
-            Base.metadata.create_all(cls.ENGINE)
-            print("database created")
-
         with cls.ENGINE.connect() as conn:
             conn.execute(text("PRAGMA foreign_keys = ON"))
 
