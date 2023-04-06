@@ -17,7 +17,7 @@ router = APIRouter()
 
 
 @router.post("/login", tags=["common"])
-async def set_cookie_for_login(
+async def set_session_token_for_login(
     user: UserLoginModel,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
 ):
@@ -33,9 +33,11 @@ async def set_cookie_for_login(
             existing_user = json.loads(existing_user.json())
             del existing_user["password"]
             access_token = create_access_token(data=existing_user)
-            response = Response(status_code=status.HTTP_200_OK)
-            response.set_cookie(key="access_token", value=f"{access_token}")
-            return response
+            return {
+                "access_token": access_token,
+                "token_type": "bearer",
+                "user": existing_user["permissions"],
+            }
 
     return Response(status_code=status.HTTP_401_UNAUTHORIZED)
 
