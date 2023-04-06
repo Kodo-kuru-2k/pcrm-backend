@@ -40,7 +40,6 @@ async def get_submitted_reports(
 async def generate_report(
     report_id: int,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
-    token_data: TokenData = Depends(parse_token),
 ):
     with dependency_container.get_db() as db:
         with tempfile.NamedTemporaryFile(suffix=".pdf") as temp:
