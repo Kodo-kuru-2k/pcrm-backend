@@ -43,7 +43,7 @@ async def set_session_token_for_login(
 
 
 @router.get("/forgot-password", tags=["common"])
-async def get_pending_reports(
+async def send_recovery_link_to_email(
     email_id: str,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
 ):
@@ -56,7 +56,7 @@ async def get_pending_reports(
 
 
 @router.post("/recovery-link/{random_string}", tags=["common"])
-async def get_pending_reports(
+async def reset_password(
     random_string: str,
     password: str,
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
