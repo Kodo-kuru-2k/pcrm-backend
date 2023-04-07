@@ -10,7 +10,7 @@ from app.dependencies import DependencyContainer
 from app.services.auth import parse_token
 from app.services.user_services import UserService
 
-router = APIRouter()
+router = APIRouter(prefix='/api')
 
 
 @router.get("/users/pending-reports", tags=["users"])

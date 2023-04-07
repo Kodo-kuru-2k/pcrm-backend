@@ -21,12 +21,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
-@app.get("/openapi.json")
-async def get_openapi():
-    return app.openapi_schema(exclude_unset=True)
-
-
 if __name__ == "__main__":
     DependencyContainer.initialize_container()
     uvicorn.run(app, host="localhost", port=5000)

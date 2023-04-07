@@ -19,7 +19,7 @@ from app.services.password_hash import PasswordHash
 from app.services.user_services import AdminService, UserService
 from app.services.user_services_models import DateModel
 
-router = APIRouter()
+router = APIRouter(prefix='/api')
 
 """
 admin fetch data
