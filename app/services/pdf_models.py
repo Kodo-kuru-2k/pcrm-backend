@@ -25,8 +25,8 @@ class LaboratoryUse(BaseModel):
 
 
 class ResearchActivities(BaseModel):
-    candidate_name: str
-    supervisor: str
+    candidate_name: Optional[str] = None
+    supervisor: Optional[str] = None
 
 
 class ConsultancyActivities(BaseModel):

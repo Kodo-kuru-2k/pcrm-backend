@@ -51,8 +51,8 @@ class DependencyContainer:
         )
         cls.SHA256 = SHA256.new()
 
-        with cls.ENGINE.connect() as conn:
-            conn.execute(text("PRAGMA foreign_keys = ON"))
+        # with cls.ENGINE.connect() as conn:
+        #     conn.execute(text("PRAGMA foreign_keys = ON"))
 
     @classmethod
     @contextmanager
