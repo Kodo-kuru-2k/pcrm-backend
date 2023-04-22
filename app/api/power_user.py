@@ -49,11 +49,12 @@ async def get_all_coe(
 @router.get("/power-user/all-reports", tags=["power_user"])
 async def get_all_reports(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    page_number: int,
     token_data: TokenData = Depends(parse_token),
 ):
     if token_data.permissions != UserLevels.PowerUser:
         return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
-        reports = PowerUserService.fetch_all_reports(db)
+        reports = PowerUserService.fetch_all_reports(db, page_number)
 
     return reports

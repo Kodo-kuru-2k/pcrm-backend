@@ -59,8 +59,6 @@ class UserService:
         report_generator: ReportGenerator,
         file_name: str,
     ):
-        # print(len(reports))
-        # print(reports)
         temp_file_list = [tempfile.NamedTemporaryFile(suffix=".pdf") for _ in reports]
         for idx, report in enumerate(reports):
             dict_report = json.loads(report.report)
@@ -156,8 +154,8 @@ class PowerUserService(UserService):
         return ReportCRUD.get_reports_by_due_date(db, due_date=due_date)
 
     @staticmethod
-    def fetch_all_reports(db: Session):
-        return ReportCRUD.get_all_reports(db)
+    def fetch_all_reports(db: Session, page_number: int):
+        return ReportCRUD.get_all_reports(db, skip=page_number * 30, limit=30)
 
 
 class AdminService(PowerUserService):

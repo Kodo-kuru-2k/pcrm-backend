@@ -55,12 +55,13 @@ async def get_all_coe(
 @router.get("/admin/all-reports", tags=["admin"])
 async def get_all_reports(
     dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    page_number: int,
     token_data: TokenData = Depends(parse_token),
 ):
     if token_data.permissions != UserLevels.Admin:
         return Response(status_code=status.HTTP_401_UNAUTHORIZED)
     with dependency_container.get_db() as db:
-        reports = AdminService.fetch_all_reports(db)
+        reports = AdminService.fetch_all_reports(db, page_number)
 
     return reports
 
