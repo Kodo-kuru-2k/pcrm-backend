@@ -1,7 +1,7 @@
 import tempfile
-from typing import Annotated
+from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 from starlette.responses import StreamingResponse, JSONResponse
 
 from app.db.crud import ReportCRUD
@@ -10,7 +10,7 @@ from app.dependencies import DependencyContainer
 from app.services.auth import parse_token
 from app.services.user_services import UserService
 
-router = APIRouter(prefix='/api')
+router = APIRouter(prefix="/api")
 
 
 @router.get("/users/pending-reports", tags=["users"])
@@ -34,6 +34,36 @@ async def get_submitted_reports(
         reports = UserService.fetch_submitted_reports_by_user(db, user.emp_id)
 
     return reports
+
+
+@router.get("/users/generate-consolidated-report", tags=["users"])
+async def generate_consolidated_report(
+    dependency_container: Annotated[DependencyContainer, Depends(DependencyContainer)],
+    report_ids: List[int] = Query(None),
+):
+    with dependency_container.get_db() as db:
+        with tempfile.NamedTemporaryFile(suffix=".pdf") as temp:
+            report_generator = dependency_container.REPORT_GENERATOR
+            reports = ReportCRUD.get_multiple_report_by_ids(db, report_ids)
+            for report in reports:
+                if report.report_status == ReportStatus.Draft:
+                    return JSONResponse(
+                        content={"message": f"report {report.report_id} is a draft"},
+                        status_code=status.HTTP_404_NOT_FOUND,
+                    )
+
+            file_contents = UserService.generate_multiple_pdf_and_merge(
+                db, reports, report_generator=report_generator, file_name=temp.name
+            )
+            headers = {
+                "Content-Disposition": "attachment; filename=report.pdf",
+                "Content-Type": "application/pdf",
+            }
+            print(file_contents)
+            response = StreamingResponse(
+                content=file_contents, status_code=status.HTTP_200_OK, headers=headers
+            )
+            return response
 
 
 @router.get("/users/generate-report", tags=["users"])

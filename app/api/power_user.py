@@ -17,7 +17,7 @@ from app.dependencies import DependencyContainer
 from app.services.auth import parse_token
 from app.services.user_services import UserService, PowerUserService
 
-router = APIRouter(prefix='/api')
+router = APIRouter(prefix="/api")
 
 
 @router.get("/power-user/all-users", tags=["power_user"])

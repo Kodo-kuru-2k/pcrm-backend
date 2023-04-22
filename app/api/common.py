@@ -13,7 +13,7 @@ from app.services.auth import create_access_token
 from app.services.password_hash import PasswordHash
 from app.services.user_services import UserService, AdminService
 
-router = APIRouter(prefix='/api')
+router = APIRouter(prefix="/api")
 
 
 @router.post("/login", tags=["common"])

@@ -137,6 +137,17 @@ class ReportCRUD:
         )
 
     @staticmethod
+    def get_multiple_report_by_ids(db: Session, report_ids: list) -> list[ReportModel]:
+        user_reports = (
+            db.query(ReportSchema).filter(ReportSchema.report_id.in_(report_ids)).all()
+        )
+        return [
+            ReportModel.from_orm(report)
+            for report in user_reports
+            if report.report_status != ReportStatus.Draft
+        ]
+
+    @staticmethod
     def get_coe_pending_reports(db: Session, center_id: str) -> List[ReportModel]:
         user_reports = db.query(ReportSchema).filter(
             ReportSchema.center_id == center_id

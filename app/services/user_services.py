@@ -1,7 +1,9 @@
 import datetime
 import json
+import tempfile
 from typing import List
 
+from pypdf import PdfFileMerger, PdfMerger
 from sqlalchemy.orm import Session
 
 from app.db.crud import UserCRUD, CenterOfExcellenceCRUD, ReportCRUD
@@ -49,6 +51,46 @@ class UserService:
     @staticmethod
     def update_user_level_report(db: Session, report: ReportUpdateModel):
         ReportCRUD.update_user_level_report(db, report)
+
+    @staticmethod
+    def generate_multiple_pdf_and_merge(
+        db: Session,
+        reports: list[ReportModel],
+        report_generator: ReportGenerator,
+        file_name: str,
+    ):
+        # print(len(reports))
+        # print(reports)
+        temp_file_list = [tempfile.NamedTemporaryFile(suffix=".pdf") for _ in reports]
+        for idx, report in enumerate(reports):
+            dict_report = json.loads(report.report)
+
+            coe = CenterOfExcellenceCRUD.get_coe_by_center_id(
+                db, center_id=report.center_id
+            )
+            center_incharge_name = UserCRUD.get_user_by_employee_id(
+                db, emp_id=coe.center_incharge
+            ).name
+            dict_report.update(coe.dict())
+            dict_report["center_incharge"] = center_incharge_name
+
+            report_generator.generate_pdf(
+                file_name=temp_file_list[idx].name,
+                render_data=PDFModelWithCenterDetails.parse_obj(dict_report),
+            )
+
+        merger = PdfMerger()
+        for page_count, temp_file in enumerate(temp_file_list):
+            with open(temp_file.name, "rb") as f:
+                merger.append(f)
+                merger.add_outline_item(
+                    title=temp_file.name, page_number=page_count - 1
+                )
+        merger.write(file_name)
+        merger.close()
+
+        with open(file=file_name, mode="rb") as file_like:
+            yield file_like.read()
 
     @staticmethod
     def generate_pdf(
